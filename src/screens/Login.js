@@ -1,10 +1,11 @@
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import {
     getAuth,
     onAuthStateChanged,
+    signInWithEmailAndPassword
 } from '@react-native-firebase/auth';
 
 const Login = ({ navigation }) => {
@@ -21,7 +22,7 @@ const Login = ({ navigation }) => {
         try {
             setLoading(true);
 
-            await auth.signInWithEmailAndPassword(email.trim(), password);
+            await signInWithEmailAndPassword(auth, email.trim(), password);
 
         } catch (error) {
             console.log('Login Error:', error);
@@ -44,22 +45,27 @@ const Login = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>LOGIN</Text>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardContainer}>
+                <ScrollView keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
 
-            {/* inputs */}
-            {/* <TextInput value={name} onChangeText={txt=>setName(txt)} placeholderTextColor='black' placeholder='Enter Name' style={[styles.input, { marginTop: 50 }]} /> */}
-            <TextInput value={email} onChangeText={txt => setEmail(txt)} placeholderTextColor='black' placeholder='Enter Email' style={[styles.input, { marginTop: 100 }]} />
-            {/* <TextInput value={mobile} onChangeText={txt=>setMobile(txt)}  keyboardType='number-pad' placeholderTextColor='black' placeholder='Enter Mobile' style={styles.input} /> */}
-            <TextInput value={password} onChangeText={txt => setPassword(txt)} placeholderTextColor='black' placeholder='Enter Password' style={styles.input} />
-            {/* <TextInput value={cPassword} onChangeText={txt=>setCPassword(txt)} placeholderTextColor='black' placeholder='Confirm Password' style={styles.input} /> */}
-            <TouchableOpacity onPress={handleLogin} activeOpacity={0.6} style={[styles.button, { marginTop: 100 }]}>
-                <Text style={styles.signupText}>LOGIN</Text>
-            </TouchableOpacity>
+                    <Text style={styles.title}>LOGIN</Text>
 
-            <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>Don't have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.loginBtn}><Text style={styles.loginText}>Signup</Text></TouchableOpacity>
-            </View>
+                    {/* inputs */}
+                    {/* <TextInput value={name} onChangeText={txt=>setName(txt)} placeholderTextColor='black' placeholder='Enter Name' style={[styles.input, { marginTop: 50 }]} /> */}
+                    <TextInput value={email} onChangeText={txt => setEmail(txt)} placeholderTextColor='black' placeholder='Enter Email' style={[styles.input, { marginTop: 100 }]} />
+                    {/* <TextInput value={mobile} onChangeText={txt=>setMobile(txt)}  keyboardType='number-pad' placeholderTextColor='black' placeholder='Enter Mobile' style={styles.input} /> */}
+                    <TextInput value={password} onChangeText={txt => setPassword(txt)} placeholderTextColor='black' placeholder='Enter Password' style={styles.input} />
+                    {/* <TextInput value={cPassword} onChangeText={txt=>setCPassword(txt)} placeholderTextColor='black' placeholder='Confirm Password' style={styles.input} /> */}
+                    <TouchableOpacity onPress={handleLogin} activeOpacity={0.6} style={[styles.button, { marginTop: 100 }]}>
+                        <Text style={styles.signupText}>LOGIN</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.questionContainer}>
+                        <Text style={styles.questionText}>Don't have an account? </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.loginBtn}><Text style={styles.loginText}>Signup</Text></TouchableOpacity>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
 
         </SafeAreaView>
     )
@@ -70,6 +76,13 @@ export default Login
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    keyboardContainer: {
+        flex: 1
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 40
     },
     title: {
         fontSize: 30,

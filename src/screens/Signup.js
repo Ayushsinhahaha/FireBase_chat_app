@@ -1,11 +1,19 @@
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import firestore from '@react-native-firebase/firestore';
+import {
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    serverTimestamp,
+} from '@react-native-firebase/firestore';
 
 import {
     getAuth,
     onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    updateProfile
 } from '@react-native-firebase/auth';
 
 
@@ -17,6 +25,7 @@ const Signup = ({ navigation }) => {
     const [cPassword, setCPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const auth = getAuth();
+    const db = getFirestore();
 
 
 
@@ -39,30 +48,38 @@ const Signup = ({ navigation }) => {
 
         try {
             setLoading(true);
-            //create firebase auth user
-            const userCredential = await auth.createUserWithEmailAndPassword(email.trim(), password)
-            //firebase generated uid
+            // //create firebase auth user
+            const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password)
+            // //firebase generated uid
             const uid = userCredential.user.uid;
 
-            //update firebase auth profile
-            await userCredential.user.updateProfile({
-                displayName: name.trim(),
-            });
+            // //update firebase auth profile
+            await updateProfile(
+                userCredential.user, {
+                displayName:
+                    name.trim(),
+            },
+            );
 
             //create user document in firestore
-            await firestore().collection("users").doc(uid).set({
+            await setDoc(doc(db, 'users', uid), {
                 uid: uid,
                 name: name.trim(),
                 email: email.trim(),
                 mobile: mobile.trim(),
-                createdAt: firestore.FieldValue.serverTimestamp(),
+                createdAt: serverTimestamp(),
             });
 
-            Alert.alert('Success', 'Account Created Succeffully')
+            Alert.alert('Success', 'Account Created Successfully')
 
 
         } catch (error) {
             console.log('Signup error:', error);
+
+            Alert.alert(
+                'Signup Error',
+                `${error.code}\n${error.message}`,
+            );
 
             if (error.code === 'auth/email-already-in-use') {
                 Alert.alert('Error', 'Email already in use');
@@ -84,22 +101,28 @@ const Signup = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>SIGNUP</Text>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardContainer}>
+                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} >
 
-            {/* inputs */}
-            <TextInput value={name} onChangeText={txt => setName(txt)} placeholderTextColor='black' placeholder='Enter Name' style={[styles.input, { marginTop: 50 }]} />
-            <TextInput value={email} onChangeText={txt => setEmail(txt)} placeholderTextColor='black' placeholder='Enter Email' style={styles.input} />
-            <TextInput value={mobile} onChangeText={txt => setMobile(txt)} keyboardType='number-pad' placeholderTextColor='black' placeholder='Enter Mobile' style={styles.input} />
-            <TextInput value={password} onChangeText={txt => setPassword(txt)} placeholderTextColor='black' placeholder='Enter Password' style={styles.input} />
-            <TextInput value={cPassword} onChangeText={txt => setCPassword(txt)} placeholderTextColor='black' placeholder='Confirm Password' style={styles.input} />
-            <TouchableOpacity onPress={handleSignup} activeOpacity={0.6} style={styles.button}>
-                <Text style={styles.signupText}>SIGN UP</Text>
-            </TouchableOpacity>
+                    <Text style={styles.title}>SIGNUP</Text>
 
-            <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginBtn}><Text style={styles.loginText}>Login</Text></TouchableOpacity>
-            </View>
+                    {/* inputs */}
+                    <TextInput value={name} onChangeText={txt => setName(txt)} placeholderTextColor='black' placeholder='Enter Name' style={[styles.input, { marginTop: 50 }]} />
+                    <TextInput value={email} onChangeText={txt => setEmail(txt)} placeholderTextColor='black' placeholder='Enter Email' style={styles.input} />
+                    <TextInput value={mobile} onChangeText={txt => setMobile(txt)} keyboardType='number-pad' placeholderTextColor='black' placeholder='Enter Mobile' style={styles.input} />
+                    <TextInput secureTextEntry value={password} onChangeText={txt => setPassword(txt)} placeholderTextColor='#000' placeholder='Enter Password' style={styles.input} />
+                    <TextInput secureTextEntry value={cPassword} onChangeText={txt => setCPassword(txt)} placeholderTextColor='black' placeholder='Confirm Password' style={styles.input} />
+                    <TouchableOpacity onPress={handleSignup} activeOpacity={0.6} style={styles.button}>
+                        <Text style={styles.signupText}>SIGN UP</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.questionContainer}>
+                        <Text style={styles.questionText}>Already have an account? </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginBtn}><Text style={styles.loginText}>Login</Text></TouchableOpacity>
+                    </View>
+
+                </ScrollView>
+            </KeyboardAvoidingView>
 
         </SafeAreaView>
     )
@@ -110,6 +133,13 @@ export default Signup
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    keyboardContainer: {
+        flex: 1
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 40
     },
     title: {
         fontSize: 30,
@@ -127,7 +157,8 @@ const styles = StyleSheet.create({
         height: 60,
         borderRadius: 10,
         alignItems: 'flex-start',
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        color: '#000'
     },
     button: {
         width: '90%',
