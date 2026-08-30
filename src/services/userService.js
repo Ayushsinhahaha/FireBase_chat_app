@@ -9,30 +9,30 @@ import {
     query,
     where
 } from '@react-native-firebase/firestore';
-import { useRef } from 'react';
 
 const db = getFirestore();
 
 //get all the registered users except the logged in user
 export const getUsers = async currentUserId => {
     try {
-        const usersRef = collection(db,'users');
-        const q=query(useRef,where('id','!=',currentUserId));
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('uid', '!=', currentUserId));
 
-        const querySnapshot= await getDocs(q);
-        const usersList=[];
+        const querySnapshot = await getDocs(q);
+        const usersList = [];
 
-        querySnapshot.forEach((docSnapshot)=>{
+        querySnapshot.forEach((docSnapshot) => {
             usersList.push({
-                id:docSnapshot.id,
+                id: docSnapshot.id,
                 ...docSnapshot.data(),
             });
         });
+        console.log('Users fetched:', usersList);
         return usersList;
-        } catch (error) {
-            console.log('Error fetching users:',error);
-            throw error;
-        }
+    } catch (error) {
+        console.log('Error fetching users:', error);
+        throw error;
+    }
 };
 
 export const getUserById = async uid => {
