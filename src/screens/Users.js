@@ -76,7 +76,10 @@ const styles = StyleSheet.create({
     userItem: {
         padding: 18,
         borderWidth: 1,
-        borderBottomColor: '#eeeeee',
+        width: '90%',
+        alignSelf: 'center',
+        marginVertical: 10,
+        borderRadius: 10
     },
     title: {
         fontSize: 24,
@@ -91,6 +94,6 @@ const styles = StyleSheet.create({
     },
     email: {
         marginTop: 5,
-        color: '#777'
+        color: '#fff'
     }
 })
