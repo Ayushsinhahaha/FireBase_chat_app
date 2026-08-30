@@ -1,0 +1,1 @@
+export const registerUser = async (name,email,mobile,password,)
