@@ -1,250 +1,96 @@
-import React, {
-    useEffect,
-    useState,
-} from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth'
+import { getUsers } from '../services/userService'
 
-
-import {
-    ActivityIndicator,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-
-import { getAuth } from '@react-native-firebase/auth';
-import { getFirestore, collection, onSnapshot } from '@react-native-firebase/firestore';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+const auth = getAuth();
 
 const Users = ({ navigation }) => {
+    const [users, setUsers] = useState([])
+    const [loading, setLoading] = useState(true);
+    const currentUser = auth.currentUser;
 
-    const [users, setUsers] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const auth = getAuth();
-    const firestore = getFirestore();
+    const loadUsers = async (uid) => {
+        try {
+            const usersList = await getUsers(uid);
+            setUsers(usersList);
+        } catch (error) {
+            console.log('Error in fetching users', error)
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadUsers(user.uid);
+            } else {
+                setLoading(false);
+            }
+        });
 
-        const currentUser =
-            auth.currentUser;
-
-        const userRef = collection(firestore, 'users');
-
-        const unsubscribe =
-            onSnapshot(
-                userRef,
-                snapshot => {
-                    const usersList =
-                        snapshot.docs
-                            .map(doc => ({
-                                id: doc.id,
-                                ...doc.data(),
-                            }))
-                            .filter(
-                                item =>
-                                    item.uid !==
-                                    currentUser.uid,
-                            );
-
-
-                    setUsers(usersList);
-
-                    setLoading(false);
-                },
-                error => {
-
-                    console.log(
-                        'Users error:',
-                        error,
-                    );
-
-                    setLoading(false);
-
-                },
-            );
-
-
-        return unsubscribe;
-
-    }, []);
-
+        return () => unsubscribe();
+    }, [])
 
     if (loading) {
-
         return (
-            <View style={styles.loader}>
-
-                <ActivityIndicator
-                    size="large"
-                />
-
-            </View>
-        );
-
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator size='large' color='#fff' />
+            </SafeAreaView>
+        )
     }
+
 
 
     return (
         <SafeAreaView style={styles.container}>
-
-            <Text style={styles.title}>
-                USERS
-            </Text>
-
-
-            <FlatList
-                data={users}
-
-                keyExtractor={item =>
-                    item.uid
-                }
-
-                renderItem={({ item }) => (
-
-                    <TouchableOpacity
-                        style={styles.userCard}
-
-                        onPress={() =>
-                            navigation.navigate(
-                                'Chat',
-                                {
-                                    receiverId:
-                                        item.uid,
-
-                                    receiverName:
-                                        item.name,
-                                },
-                            )
-                        }
-                    >
-
-                        <View
-                            style={styles.avatar}
-                        >
-
-                            <Text
-                                style={
-                                    styles.avatarText
-                                }
-                            >
-                                {item.name
-                                    ?.charAt(0)
-                                    .toUpperCase()}
-                            </Text>
-
-                        </View>
-
-
-                        <View>
-
-                            <Text
-                                style={
-                                    styles.userName
-                                }
-                            >
-                                {item.name}
-                            </Text>
-
-
-                            <Text
-                                style={
-                                    styles.email
-                                }
-                            >
-                                {item.email}
-                            </Text>
-
-                        </View>
-
-                    </TouchableOpacity>
-
-                )}
-
-                ListEmptyComponent={
-                    <Text
-                        style={
-                            styles.emptyText
-                        }
-                    >
-                        No other users found.
-                    </Text>
-                }
-
-            />
-
+            <Text style={styles.title}>USERS</Text>
+            <FlatList data={users} keyExtractor={item => item.id} renderItem={({ item }) => (
+                <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('Chat', {
+                    receiverId: item.id,
+                    receiverName: item.name
+                })} >
+                    <Text style={styles.name}>{item.name}</Text>
+                    <Text style={styles.email}>{item.email}</Text>
+                </TouchableOpacity>
+            )} />
         </SafeAreaView>
-    );
-};
+    )
+}
 
-
-export default Users;
-
+export default Users
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
-        padding: 15,
+        backgroundColor: 'dodgerblue'
     },
-
-    loader: {
+    loadingContainer: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'dodgerblue'
     },
-
+    userItem: {
+        padding: 18,
+        borderWidth: 1,
+        borderBottomColor: '#eeeeee',
+    },
     title: {
-        fontSize: 25,
-        fontWeight: '800',
-        marginBottom: 20,
+        fontSize: 24,
         textAlign: 'center',
-    },
-
-    userCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-
-    avatar: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: 'dodgerblue',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 15,
-    },
-
-    avatarText: {
-        color: 'white',
-        fontSize: 22,
-        fontWeight: '800',
-    },
-
-    userName: {
-        fontSize: 18,
+        color: '#fff',
         fontWeight: '700',
+        marginVertical: 20
     },
-
+    name: {
+        fontSize: 18,
+        fontWeight: '600'
+    },
     email: {
-        color: 'gray',
-        marginTop: 4,
-    },
-
-    emptyText: {
-        alignSelf: 'center',
-        marginTop: 50,
-        fontSize: 16,
-        color: 'gray',
-    },
-
-});
+        marginTop: 5,
+        color: '#777'
+    }
+})
