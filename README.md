@@ -1,10 +1,220 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Bridge - React Native Chat Application
 
-# Getting Started
+A cross-platform real-time messaging application built with React Native. Bridge enables users to authenticate, connect with other users, and communicate seamlessly across iOS and Android platforms.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+- **User Authentication**: Secure login and signup with email/password
+- **Real-Time Messaging**: Send and receive messages instantly
+- **User Discovery**: Browse and connect with other users
+- **User Management**: View and manage user profiles
+- **Responsive UI**: Beautiful and intuitive interface with custom components
+- **State Management**: Centralized auth context for user sessions
+- **Cross-Platform**: Runs on both iOS and Android
+
+## Project Structure
+
+```
+bridge/
+├── src/
+│   ├── assets/          # Images and static assets
+│   ├── components/      # Reusable UI components
+│   │   ├── ChatInput.js      # Message input component
+│   │   ├── Loader.js         # Loading spinner
+│   │   ├── MessageBubble.js  # Message display component
+│   │   └── UserItem.js       # User list item
+│   ├── context/         # Global state management
+│   │   └── AuthContext.js    # Authentication context
+│   ├── hooks/           # Custom React hooks
+│   │   └── useAuth.js        # Auth hook
+│   ├── navigation/      # Navigation stack configuration
+│   │   ├── AppNavigator.js   # Main app navigation
+│   │   ├── AuthNavigator.js  # Auth stack navigation
+│   │   └── MainNavigator.js  # Main app stack navigation
+│   ├── screens/         # Screen components
+│   │   ├── Chat.js           # Chat screen
+│   │   ├── Home.js           # Home screen
+│   │   ├── Login.js          # Login screen
+│   │   ├── Signup.js         # Signup screen
+│   │   ├── Splash.js         # Splash screen
+│   │   └── Users.js          # Users list screen
+│   ├── services/        # API and external services
+│   │   ├── authService.js    # Authentication API calls
+│   │   ├── chatService.js    # Chat API calls
+│   │   └── userService.js    # User API calls
+│   ├── types/           # Type definitions
+│   │   └── chat.js           # Chat type definitions
+│   └── utils/           # Utility functions and constants
+│       ├── chatUtils.js      # Chat-related utilities
+│       └── constants.js      # App constants
+├── android/             # Android native code
+├── ios/                 # iOS native code
+├── __tests__/           # Unit tests
+├── babel.config.js      # Babel configuration
+├── metro.config.js      # Metro bundler configuration
+├── tsconfig.json        # TypeScript configuration
+├── jest.config.js       # Jest testing configuration
+└── package.json         # Project dependencies
+
+```
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm or Yarn
+- Android Studio (for Android development)
+- Xcode (for iOS development)
+- CocoaPods (for iOS dependencies)
+
+## Installation
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd bridge
+```
+
+2. **Install dependencies**
+```bash
+npm install
+# OR
+yarn install
+```
+
+3. **Install iOS CocoaPods** (first time only or after dependency updates)
+```bash
+cd ios
+bundle install
+bundle exec pod install
+cd ..
+```
+
+## Getting Started
+
+### Running on Android
+
+1. Start Metro bundler:
+```bash
+npm start
+```
+
+2. In a new terminal, run:
+```bash
+npm run android
+```
+
+### Running on iOS
+
+1. Start Metro bundler:
+```bash
+npm start
+```
+
+2. In a new terminal, run:
+```bash
+npm run ios
+```
+
+### Development with Fast Refresh
+
+The app uses Fast Refresh for instant code updates. When you save a file, changes appear immediately without full reload.
+
+To force a full reload:
+- **Android**: Press <kbd>R</kbd> twice or use <kbd>Ctrl</kbd> + <kbd>M</kbd> → Reload
+- **iOS**: Press <kbd>R</kbd> in the simulator
+
+## Key Components
+
+### Authentication Flow
+- Users start at the splash screen while auth state is checked
+- Unauthenticated users see Login/Signup screens
+- Authenticated users access the main chat interface
+
+### Navigation Structure
+- **AuthNavigator**: Login and Signup screens
+- **MainNavigator**: Home, Chat, and Users screens
+- **AppNavigator**: Manages switch between Auth and Main based on user state
+
+### Services
+- **authService**: Handles user registration, login, and logout
+- **chatService**: Manages message sending/receiving
+- **userService**: Fetches and manages user data
+
+## Available Scripts
+
+```bash
+# Start development server
+npm start
+
+# Run on Android
+npm run android
+
+# Run on iOS
+npm run ios
+
+# Run tests
+npm test
+
+# Build Android APK
+npm run build:android
+
+# Build iOS app
+npm run build:ios
+```
+
+## Troubleshooting
+
+### Metro Bundler Issues
+- Clear cache: `npm start -- --reset-cache`
+- Kill process on port 8081: `lsof -ti:8081 | xargs kill -9`
+
+### Android Issues
+- Clean build: `cd android && ./gradlew clean && cd ..`
+- Rebuild: `npm run android`
+
+### iOS Issues
+- Clean pods: `cd ios && rm -rf Pods && bundle exec pod install && cd ..`
+- Xcode cache: Clean build folder (Cmd+Shift+K)
+
+### Dependency Issues
+- Clear node_modules: `rm -rf node_modules && npm install`
+- Clear cache: `npm cache clean --force`
+
+## Development Workflow
+
+1. Create a new branch for features: `git checkout -b feature/your-feature`
+2. Make your changes and test thoroughly
+3. Commit with descriptive messages: `git commit -m "Add feature description"`
+4. Push to remote: `git push origin feature/your-feature`
+5. Create a pull request
+
+## Testing
+
+Run the test suite:
+```bash
+npm test
+```
+
+Tests are located in `__tests__/` directory.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Make your changes
+4. Push your changes
+5. Submit a pull request
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Resources
+
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [React Navigation Guide](https://reactnavigation.org/)
+- [Context API Guide](https://reactnative.dev/docs/context)
+- [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 
 First, you will need to run **Metro**, the JavaScript build tool for React Native.
 

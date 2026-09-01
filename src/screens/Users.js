@@ -49,7 +49,7 @@ const Users = ({ navigation }) => {
             <Text style={styles.title}>USERS</Text>
             <FlatList data={users} keyExtractor={item => item.id} renderItem={({ item }) => (
                 <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('Chat', {
-                    receiverId: item.uid||item.id,
+                    receiverId: item.uid || item.id,
                     receiverName: item.name
                 })} >
                     <Image source={require('../assets/user.png')} style={styles.userLogo} />
@@ -68,7 +68,7 @@ export default Users
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'dodgerblue'
+        // backgroundColor: 'dodgerblue'
     },
     loadingContainer: {
         flex: 1,
@@ -78,20 +78,26 @@ const styles = StyleSheet.create({
     },
     userItem: {
         padding: 18,
-        borderWidth: 1,
+        // borderWidth: 1,
         width: '90%',
         alignSelf: 'center',
         marginVertical: 10,
         borderRadius: 10,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'dodgerblue',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
     },
     title: {
         fontSize: 24,
         textAlign: 'center',
         color: '#fff',
         fontWeight: '700',
-        marginVertical: 20
+        marginVertical: 20,
+        color: 'dodgerblue'
     },
     name: {
         fontSize: 18,
