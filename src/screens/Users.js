@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth'
@@ -49,11 +49,14 @@ const Users = ({ navigation }) => {
             <Text style={styles.title}>USERS</Text>
             <FlatList data={users} keyExtractor={item => item.id} renderItem={({ item }) => (
                 <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('Chat', {
-                    receiverId: item.id,
+                    receiverId: item.uid||item.id,
                     receiverName: item.name
                 })} >
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.email}>{item.email}</Text>
+                    <Image source={require('../assets/user.png')} style={styles.userLogo} />
+                    <View style={styles.userDetails}>
+                        <Text style={styles.name}>{item.name}</Text>
+                        <Text style={styles.email}>{item.email}</Text>
+                    </View>
                 </TouchableOpacity>
             )} />
         </SafeAreaView>
@@ -79,7 +82,9 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
         marginVertical: 10,
-        borderRadius: 10
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     title: {
         fontSize: 24,
@@ -95,5 +100,12 @@ const styles = StyleSheet.create({
     email: {
         marginTop: 5,
         color: '#fff'
+    },
+    userLogo: {
+        height: 70,
+        width: 70
+    },
+    userDetails: {
+        marginHorizontal: 20
     }
 })

@@ -36,6 +36,7 @@ export const signUpUser = async (name, email, password) => {
 
         await setDoc(
             userRef, {
+            uid: user.uid,
             id: user.uid,
             name: name,
             email: user.email,
